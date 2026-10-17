@@ -24,6 +24,12 @@ function parseExpiry(value) {
 const maxAgeMs = parseExpiry(EXPIRES_IN);
 const secure = String(process.env.COOKIE_SECURE || (PRODUCTION ? 'true' : 'false')).toLowerCase() === 'true';
 
+// SameSite: 'lax' for same-site setups; use 'none' when the frontend and API live
+// on different domains (e.g. Vercel UI + Render API). 'none' requires Secure=true.
+const SAME_SITE_VALUES = ['strict', 'lax', 'none'];
+const requestedSameSite = String(process.env.COOKIE_SAME_SITE || 'lax').toLowerCase();
+const sameSite = SAME_SITE_VALUES.includes(requestedSameSite) ? requestedSameSite : 'lax';
+
 module.exports = {
   secret,
   expiresIn: EXPIRES_IN,
@@ -32,7 +38,7 @@ module.exports = {
   cookieOptions: {
     httpOnly: true,
     secure,
-    sameSite: 'lax',
+    sameSite,
     path: '/',
     maxAge: maxAgeMs,
   },

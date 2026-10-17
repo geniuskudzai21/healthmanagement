@@ -23,6 +23,8 @@ services:
         value: 8h
       - key: COOKIE_SECURE
         value: "true"
+      - key: COOKIE_SAME_SITE
+        value: none             # required when UI (Vercel) and API (Render) are on different domains
       - key: CORS_ORIGIN
         sync: false            # frontend origin, e.g. https://healthflow-ui.vercel.app
       - key: RATE_LIMIT_WINDOW_MS

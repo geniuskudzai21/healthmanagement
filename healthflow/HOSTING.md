@@ -21,6 +21,24 @@ Frontend on **Vercel**, backend on **Render**, database on **Neon**.
    - `ADMIN_PASSWORD` — a strong password
    - `CORS_ORIGIN` — your Vercel URL (add it after step 3; you can set a placeholder now)
 3. Deploy. Build runs `migrate + seed` automatically, health check is `/api/health`.
+
+> Using a **manual Web Service** instead of the Blueprint? Add every variable from
+> the table below yourself, otherwise the server crashes on boot.
+
+### Required environment variables
+
+| Key | Value |
+| --- | --- |
+| `NODE_ENV` | `production` |
+| `DATABASE_URL` | your Neon string + `?sslmode=require` |
+| `JWT_SECRET` | a long random string (Render can generate it) |
+| `COOKIE_SECURE` | `true` |
+| `COOKIE_SAME_SITE` | `none` *(UI and API are on different domains)* |
+| `CORS_ORIGIN` | your Vercel URL, e.g. `https://healthflow-ui.vercel.app` |
+| `ADMIN_EMAIL` | `admin@healthflow.local` |
+| `ADMIN_PASSWORD` | a strong password |
+
+Missing `JWT_SECRET` is the #1 cause of `Error: JWT_SECRET must be set in production.`
 4. Note your API URL, e.g. `https://healthflow-api.onrender.com`.
 
 ## 3. Frontend (Vercel)
