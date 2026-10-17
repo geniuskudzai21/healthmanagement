@@ -1,0 +1,48 @@
+# Render Blueprint for HealthFlow
+# Deploy: Render Dashboard -> New -> Blueprint -> pick this repo.
+# Postgres is expected to be Neon (external); set DATABASE_URL when prompted.
+
+services:
+  - type: web
+    name: healthflow-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci && npm run migrate && npm run seed
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false            # paste your Neon connection string
+      - key: JWT_SECRET
+        generateValue: true    # Render generates a strong secret
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: CORS_ORIGIN
+        sync: false            # frontend origin, e.g. https://healthflow-ui.vercel.app
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "900000"
+      - key: RATE_LIMIT_MAX
+        value: "300"
+      - key: AUTH_RATE_LIMIT_MAX
+        value: "20"
+      - key: ADMIN_EMAIL
+        value: admin@healthflow.local
+      - key: ADMIN_NAME
+        value: HealthFlow Admin
+      - key: ADMIN_PASSWORD
+        sync: false            # set a strong password when prompted
+
+sites:
+  - type: static
+    name: healthflow-ui
+    buildCommand: "echo static files - nothing to build"
+    staticPublishPath: frontend
+    # Static hosting cannot inject env vars into the HTML. Set the API URL in
+    # frontend/index.html (window.HEALTHFLOW_API) before deploying, or use the
+    # runtime override localStorage.hf_api_base.

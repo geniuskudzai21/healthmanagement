@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="HealthFlow clinic management - queue, check-in, appointments and reports." />
+  <meta name="color-scheme" content="light" />
+  <meta name="theme-color" content="#0F766E" />
+  <title>HealthFlow</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230F766E'/><path d='M14 7h4v7h7v4h-7v7h-4v-7H7v-4h7z' fill='white'/></svg>" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <script>
+    // Point the SPA at your API. Override on Vercel (or via localStorage.hf_api_base).
+    window.HEALTHFLOW_API = window.HEALTHFLOW_API || 'http://localhost:4000';
+  </script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#outlet">Skip to content</a>
+
+  <div class="app-shell" id="app-shell">
+    <aside id="sidebar" class="sidebar" aria-label="Primary navigation">
+      <!-- rendered by app.js -->
+    </aside>
+    <div class="sidebar-overlay" id="sidebar-overlay" hidden></div>
+
+    <div class="app-body">
+      <header id="app-header" class="topbar"></header>
+
+      <main id="main" class="app-main">
+        <div id="page-head" class="page-head" hidden>
+          <h1 id="page-title" class="page-title"></h1>
+          <p id="page-subtitle" class="page-subtitle" hidden></p>
+        </div>
+        <div id="outlet" class="outlet" tabindex="-1"></div>
+      </main>
+    </div>
+  </div>
+
+  <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="false"></div>
+  <div id="live-region" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

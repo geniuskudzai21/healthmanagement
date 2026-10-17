@@ -1,0 +1,32 @@
+{
+  "name": "healthflow-backend",
+  "version": "1.0.0",
+  "description": "HealthFlow clinic backend - Node + Express + Neon Postgres",
+  "private": true,
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "migrate": "node src/db/migrate.js",
+    "seed": "node src/db/seed.js",
+    "setup": "npm run migrate && npm run seed",
+    "check": "node scripts/check.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
