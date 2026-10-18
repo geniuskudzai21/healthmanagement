@@ -307,7 +307,7 @@ export function formatDuration(seconds) {
   return `${total}s`;
 }
 
-export function formatMoney(value, currency = 'KES') {
+export function formatMoney(value, currency = 'USD') {
   const num = Number(value);
   if (!Number.isFinite(num)) return '—';
   return `${currency} ${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

@@ -24,7 +24,7 @@ import {
   addMinutes,
   todayIso,
 } from '../ui.js';
-import { patientPicker, fillClinicianSelect, fillRoomSelect } from '../components.js';
+import { patientPicker, fillRoomSelect } from '../components.js';
 
 const STATUSES = [
   ['scheduled', 'Scheduled'],
@@ -62,8 +62,10 @@ async function openCreateDialog(onSaved) {
           <div id="appt-patient-picker"></div>
         </div>
         <div class="field">
-          <label for="clinician_id">Clinician</label>
-          <select id="clinician_id" name="clinician_id" required></select>
+          <label for="doctor">Doctor</label>
+          <input id="doctor" name="doctor" list="doctor-options" placeholder="Type or pick a doctor"
+            autocomplete="off" required />
+          <datalist id="doctor-options"></datalist>
         </div>
         <div class="field">
           <label for="room_id">Room</label>
@@ -99,14 +101,20 @@ async function openCreateDialog(onSaved) {
   const submit = dialog.querySelector('#appt-submit');
 
   const picker = patientPicker(dialog.querySelector('#appt-patient-picker'), {});
-  const clinicianSelect = dialog.querySelector('#clinician_id');
+  const doctorInput = dialog.querySelector('#doctor');
+  const doctorOptions = dialog.querySelector('#doctor-options');
   const roomSelect = dialog.querySelector('#room_id');
 
+  let doctors = [];
   try {
-    await Promise.all([
-      fillClinicianSelect(clinicianSelect),
+    const [clinicians] = await Promise.all([
+      api.get('/api/clinicians'),
       fillRoomSelect(roomSelect, { includeEmpty: 'No room' }),
     ]);
+    doctors = clinicians;
+    doctorOptions.innerHTML = doctors
+      .map((doctor) => html`<option value="${doctor.full_name}"></option>`)
+      .join('');
   } catch (err) {
     errorBox.textContent = err.message;
     errorBox.hidden = false;
@@ -125,21 +133,26 @@ async function openCreateDialog(onSaved) {
     }
 
     const values = formValues(form);
+    const doctorName = String(values.doctor || '').trim().toLowerCase();
+    const doctor = doctors.find((d) => d.full_name.trim().toLowerCase() === doctorName);
+    if (!doctor) {
+      errorBox.textContent = doctorInput.value.trim()
+        ? `No doctor named "${doctorInput.value.trim()}". Pick one from the list.`
+        : 'Choose a doctor for this appointment.';
+      errorBox.hidden = false;
+      doctorInput.focus();
+      return;
+    }
+
     const payload = {
       patient_id: patient.id,
-      clinician_id: Number(values.clinician_id),
+      clinician_id: doctor.id,
       scheduled_start: fromLocalInputValue(values.scheduled_start),
       scheduled_end: fromLocalInputValue(values.scheduled_end),
     };
     if (values.room_id) payload.room_id = Number(values.room_id);
     if (values.reason) payload.reason = values.reason;
     if (values.notes) payload.notes = values.notes;
-
-    if (!payload.clinician_id) {
-      errorBox.textContent = 'Choose a clinician.';
-      errorBox.hidden = false;
-      return;
-    }
 
     setBusy(submit, true, 'Scheduling…');
     try {
@@ -149,7 +162,7 @@ async function openCreateDialog(onSaved) {
       await onSaved();
     } catch (err) {
       if (err.status === 409) {
-        errorBox.textContent = 'That time is already booked for this clinician or room. Pick another slot.';
+        errorBox.textContent = 'That time is already booked for this doctor or room. Pick another slot.';
       } else if (err.details && err.details.fields) {
         showFieldErrors(form, err.details.fields);
         errorBox.textContent = 'Please correct the highlighted fields.';
@@ -250,7 +263,7 @@ export default async function appointmentsView({ outlet }) {
           <tr>
             <th scope="col">Time</th>
             <th scope="col">Patient</th>
-            <th scope="col">Clinician</th>
+            <th scope="col">Doctor</th>
             <th scope="col">Room</th>
             <th scope="col">Reason</th>
             <th scope="col">Status</th>
@@ -268,7 +281,7 @@ export default async function appointmentsView({ outlet }) {
                 <strong>${appt.patient_first_name} ${appt.patient_last_name}</strong>
                 <span class="muted block">${appt.mrn}</span>
               </td>
-              <td data-label="Clinician">${appt.clinician_name}</td>
+              <td data-label="Doctor">${appt.clinician_name}</td>
               <td data-label="Room">${appt.room_code || '—'}</td>
               <td data-label="Reason">${appt.reason || '—'}</td>
               <td data-label="Status">${statusBadge(appt.status)}</td>

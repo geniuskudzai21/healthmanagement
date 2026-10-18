@@ -51,8 +51,8 @@ HealthFlow runs the flow of a small outpatient clinic on a single day:
   rooms; nurses and clinicians can free a room. The dashboard shows how many are
   free right now, and "call next" auto-routes patients into a free room of the
   right type.
-- **Appointments** — schedule patients with a clinician in a room. Double
-  booking is impossible: overlapping slots for the same clinician or room are
+- **Appointments** — schedule patients with a doctor in a room. Double
+  booking is impossible: overlapping slots for the same doctor or room are
   rejected with 409. Checking in an appointment opens a visit and adds the
   patient to the live queue; completing, cancelling or marking no-show keeps the
   linked visit and ticket in sync.
@@ -143,9 +143,9 @@ Password for all: `ChangeMe123!` (override with `SEED_PASSWORD` / set
 Also seeded:
 
 - **10 demo patients** — MRN1001–MRN1010 with names, DOBs, phones, emails.
-- **8 service items** — consultation (KES 1,500), vitals (500), drug
-  dispensing (2,500), injection (1,500), dressing (800), lab generic (2,500),
-  X-ray (3,500), consultation-room charge (500).
+- **8 service items** — consultation (USD 1,500), vitals (500), medication
+  (250), injection (1,500), dressing (800), basic labs (2,500), X-ray (3,500),
+  consultation-room charge (500). All money is displayed in **USD**.
 - **6 demo rooms** — Vitals 1, Consultation 1–3, Procedure room and a Waiting
   bay (all `available` to start).
 
@@ -221,9 +221,9 @@ rooms here (or re-run `npm run seed` to load the demo rooms).
 
 ### Appointments
 
-- Filter by day and status; **New appointment** picks patient, clinician,
-  room, start/end time, reason and notes.
-- Overlap protection: the same clinician or the same room cannot be booked
+- Filter by day and status; **New appointment** picks patient, doctor, room,
+  start/end time, reason and notes.
+- Overlap protection: the same doctor or the same room cannot be booked
   twice for overlapping times (API returns 409 with a clear message).
 - Row actions: **Check in** (opens a visit and adds the patient to the live
   queue), **Complete**, **No show**, **Cancel**, **Delete**. Checking in again,
