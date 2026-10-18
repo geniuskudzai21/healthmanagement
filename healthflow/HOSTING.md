@@ -67,3 +67,38 @@ Instead of editing `index.html`, set the API at runtime from the browser console
 ```js
 localStorage.hf_api_base = 'https://healthflow-api.onrender.com';
 ```
+
+## 5. Keep the free API awake (cron)
+
+Render's **free** web services spin down after ~15 minutes with no traffic, so the
+next request pays a 30–60s cold start. A scheduled ping keeps it warm.
+
+**Option A — GitHub Actions (already in the repo).**
+`.github/workflows/keepalive.yml` curls `https://healthmanagement-i1yn.onrender.com/api/health`
+every 10 minutes. It runs automatically once the repo is on GitHub; trigger it
+manually from **Actions → Keep API awake → Run workflow** the first time.
+
+**Option B — external monitor (most reliable).**
+Create a free monitor at [cron-job.org](https://cron-job.org) or
+[UptimeRobot](https://uptimerobot.com) that GETs the same health URL every
+5–10 minutes.
+
+**Option C — Render Cron Job (dashboard).**
+Render → **New → Cron Job**, schedule `*/10 * * * *`, command
+`curl -s https://healthmanagement-i1yn.onrender.com/api/health`. (Note: Render
+cron jobs require a paid instance type.)
+
+> The health endpoint is `/api/health` and needs no authentication.
+
+## 6. Managing user accounts
+
+Admins have a **Users** page (sidebar → *Users*, route `#/users`) to:
+
+- **Create** staff accounts (role, name, email, phone, password).
+- **Edit** any account (role/name/email/phone, optional password reset).
+- **Deactivate / Activate** accounts — a deactivated account cannot sign in and
+  is rejected on its next request.
+- **Delete** accounts. Accounts with linked clinical/billing records are
+  protected: you are prompted to deactivate instead. You cannot delete or
+  deactivate your own account, and the last active admin is always preserved.
+

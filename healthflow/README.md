@@ -279,8 +279,11 @@ recorded against them).
 
 ### Admin screens
 
-- **Users** — create staff accounts, change roles, deactivate (soft delete).
-  Password changes invalidate older sessions.
+- **Users** (`#/users`) — create staff accounts, edit roles/name/email/phone,
+  reset passwords, and activate / deactivate. **Delete** removes an account only
+  when it has no linked records (otherwise you are prompted to deactivate). You
+  cannot delete or deactivate your own account, and the last active admin is
+  always protected. Password changes invalidate older sessions.
 - **Audit** — every write and login, filterable by entity, actor and action
   (create / update / delete / void / login).
 
@@ -356,7 +359,7 @@ All routes under `/api`, auth required unless noted.
 | `GET/POST /billing/payments`, `POST /billing/payments/:paymentId/void`, `GET /billing/summary` | Payment tracking and period summary |
 | `GET /reports/daily?date=YYYY-MM-DD` | Visits, appointments, queue waits, hourly load, per-clinician, room utilisation, billing |
 | `GET /reports/monthly?month=YYYY-MM` | Month totals, per-day breakdown, per-clinician, visit types, billing |
-| `GET /users`, `GET/POST/PATCH/DELETE /users/:id` | Admin only (DELETE = deactivate) |
+| `GET /users`, `GET/POST/PATCH/DELETE /users/:id` | Admin only; `PATCH { is_active }` deactivates/activates; `DELETE` hard-deletes only when the account has no linked records (else 409) |
 | `GET /clinicians` | Active clinician directory for any authenticated user |
 | `GET /audit` | Admin only; `?entity=&actor_id=&action=` |
 

@@ -21,6 +21,7 @@ import appointmentsView from './views/appointments.js';
 import roomsView from './views/rooms.js';
 import reportsView from './views/reports.js';
 import billingView from './views/billing.js';
+import usersView from './views/users.js';
 import notFoundView from './views/notFound.js';
 
 const NAV = [
@@ -32,6 +33,7 @@ const NAV = [
   { path: '/appointments', label: 'Appointments', icon: 'appointments' },
   { path: '/billing', label: 'Billing', icon: 'bill', roles: ['reception', 'clinician', 'admin'] },
   { path: '/reports', label: 'Reports', icon: 'reports', roles: ['admin', 'clinician'] },
+  { path: '/users', label: 'Users', icon: 'users', roles: ['admin'] },
 ];
 
 const SIDEBAR_KEY = 'hf_sidebar_collapsed';
@@ -228,6 +230,7 @@ function registerRoutes() {
   register('/appointments', appointmentsView);
   register('/billing', billingView, { roles: ['reception', 'clinician', 'admin'] });
   register('/reports', reportsView, { roles: ['admin', 'clinician'] });
+  register('/users', usersView, { roles: ['admin'] });
   setFallback(notFoundView);
 }
 

@@ -426,6 +426,18 @@ code {
   font-weight: 700;
 }
 
+.avatar--sm {
+  width: 1.65rem;
+  height: 1.65rem;
+  font-size: 0.68rem;
+}
+
+.cell-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .user-meta {
   display: flex;
   flex-direction: column;

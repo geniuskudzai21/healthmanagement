@@ -1,0 +1,35 @@
+name: Keep HealthFlow API awake
+
+# Render's free web services spin down after ~15 minutes without traffic, so the
+# next request pays a ~30-60s cold start. This scheduled workflow pings the
+# public health endpoint every 10 minutes to keep the API warm.
+#
+# Heads-up: GitHub can delay scheduled runs under load, and it disables
+# scheduled workflows after 60 days with no repository activity. For rock-solid
+# uptime also add a free external monitor pointed at the same URL
+# (e.g. cron-job.org or UptimeRobot) - see healthflow/HOSTING.md.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: keepalive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    name: Ping /api/health
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake the API
+        run: |
+          set -euo pipefail
+          URL="https://healthmanagement-i1yn.onrender.com/api/health"
+          echo "Pinging $URL"
+          code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 60 "$URL") || code=000
+          echo "HTTP $code"
+          # Any HTTP response means the service is awake; the goal is warmth,
+          # not asserting application health.
+          test "$code" != "000"

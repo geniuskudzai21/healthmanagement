@@ -71,9 +71,9 @@ exports.update = [
   },
 ];
 
-exports.deactivate = async (req, res, next) => {
+exports.remove = async (req, res, next) => {
   try {
-    res.json(await usersService.deactivate(req.params.id, res.locals.ctx));
+    res.json(await usersService.remove(req.params.id, res.locals.ctx));
   } catch (err) {
     next(err);
   }
