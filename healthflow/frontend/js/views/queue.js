@@ -38,7 +38,6 @@ function summaryChips(summary) {
   return html`
     ${chip('waiting', summary.waiting ?? 0, 'warning')}
     ${chip('called', summary.called ?? 0, 'info')}
-    ${chip('in room', summary.in_room ?? 0, 'info')}
     ${chip('done today', summary.done ?? 0, 'success')}
     ${chip('avg wait', formatDuration(summary.avg_wait_seconds))}
     ${chip('median wait', formatDuration(summary.median_wait_seconds))}
@@ -54,8 +53,7 @@ function rowActions(entry) {
     buttons.push(html`<button type="button" class="btn btn--primary btn--sm" data-act="called" data-id="${id}">Call</button>`);
   }
   if (entry.status === 'called') {
-    buttons.push(html`<button type="button" class="btn btn--primary btn--sm" data-act="in_room" data-id="${id}">In room</button>`);
-    buttons.push(html`<button type="button" class="btn btn--ghost btn--sm" data-act="skipped" data-id="${id}">Skip</button>`);
+    buttons.push(html`<button type="button" class="btn btn--success btn--sm" data-act="done" data-id="${id}">Done</button>`);
   }
   if (entry.status === 'in_room') {
     buttons.push(html`<button type="button" class="btn btn--success btn--sm" data-act="done" data-id="${id}">Done</button>`);

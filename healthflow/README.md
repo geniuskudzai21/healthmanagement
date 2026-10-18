@@ -43,9 +43,9 @@ HealthFlow runs the flow of a small outpatient clinic on a single day:
   One transaction creates the patient (if new), opens a **visit** and prints a
   **queue ticket**.
 - **Live queue** — staff see everyone waiting in real time with elapsed wait
-  times. "Call next" pulls the highest-priority longest-waiting patient and
-  auto-routes them to a free room of the right type. Completing a queue entry
-  closes the visit and frees the room.
+  times. "Call next" marks the highest-priority longest-waiting patient, and
+  **Assign room** routes them to a free room of the chosen type. Completing or
+  cancelling an entry closes the visit and frees the room.
 - **Rooms** — a register of consultation, triage and procedure rooms with live
   status (available / occupied / maintenance / reserved). Admins add and remove
   rooms; nurses and clinicians can free a room. The dashboard shows how many are
@@ -53,8 +53,9 @@ HealthFlow runs the flow of a small outpatient clinic on a single day:
   right type.
 - **Appointments** — schedule patients with a clinician in a room. Double
   booking is impossible: overlapping slots for the same clinician or room are
-  rejected with 409. Appointments can be checked in, completed, cancelled or
-  marked no-show.
+  rejected with 409. Checking in an appointment opens a visit and adds the
+  patient to the live queue; completing, cancelling or marking no-show keeps the
+  linked visit and ticket in sync.
 - **Billing** — service catalogue with prices, invoices with line items, and
   manual payment records so the desk can see **how much a patient still owes**.
   Invoice lifecycle `draft → issued → partially_paid → paid` (or `void`),
@@ -194,15 +195,16 @@ buttons to check in the next patient or jump to the queue.
 The live operations board:
 
 - Filter by area (All / General / Vitals / Consultation).
-- Stat chips: waiting, called, in-room, done, average wait.
-- Each row: ticket, patient, triage badge, area, visit type, wait time,
-  status, room.
-- Role actions per row:
-  - **Call next** (nurse / clinician / admin) — pulls the highest-triage,
-    longest-waiting patient and assigns a free room of the right type
-    automatically (`FOR UPDATE SKIP LOCKED`, safe under concurrency).
-  - **Status transitions** — waiting → called → in_room → done.
-  - **Done** completes the underlying visit and frees the room.
+- Stat chips: waiting, called, done, average / median / longest wait.
+- Each row: ticket, patient, triage badge, area, wait time, status.
+- Role actions per row (nurse / clinician / admin):
+  - **Call** a waiting patient (or **Call next** — pulls the highest-triage,
+    longest-waiting patient, safe under concurrency).
+  - **Assign room** — routes the visit to a free room of the chosen type
+    (`FOR UPDATE SKIP LOCKED`); errors clearly if none are free.
+  - **Done** — completes the visit and frees its room.
+  - **Cancel** — drops the entry from the queue.
+- Status flow: waiting → called → done.
 
 ### Rooms (everyone)
 
@@ -223,8 +225,9 @@ rooms here (or re-run `npm run seed` to load the demo rooms).
   room, start/end time, reason and notes.
 - Overlap protection: the same clinician or the same room cannot be booked
   twice for overlapping times (API returns 409 with a clear message).
-- Row actions: **Check in** (sends the patient into the check-in flow),
-  **Complete**, **No show**, **Cancel**, **Delete**.
+- Row actions: **Check in** (opens a visit and adds the patient to the live
+  queue), **Complete**, **No show**, **Cancel**, **Delete**. Checking in again,
+  or completing/cancelling, keeps the linked visit and queue ticket in sync.
 
 Reception and admin create/edit; nurses and clinicians can update statuses
 from the queue workflow.
@@ -336,7 +339,7 @@ All routes under `/api`, auth required unless noted.
 | `GET /queue`, `GET /queue/summary` | Live queue with `wait_seconds`, `in_queue_seconds`, `service_seconds`; summary has avg/median/longest wait |
 | `POST /queue/enqueue`, `POST /queue/call-next`, `PATCH /queue/:id/status` | `done` completes the visit and frees its room |
 | `GET /rooms`, `GET /rooms/available`, `POST /rooms/route`, `POST /rooms/:id/release` | Auto-routing picks a free room of the requested type |
-| `GET/POST /appointments`, `PATCH /appointments/:id`, `PATCH /appointments/:id/status` | Unique clinician/room slot + overlap check → 409 |
+| `GET/POST /appointments`, `PATCH /appointments/:id`, `PATCH /appointments/:id/status` | Unique clinician/room slot + overlap check → 409; `status: checked_in` opens a visit and enqueues a ticket |
 | `GET /billing/service-items`, `POST/PATCH /billing/service-items/:id` | Billing catalogue (admin for write) |
 | `GET/POST/PATCH/DELETE /billing/invoices`, `/billing/invoices/:id`, `/billing/invoices/:id/lines`, `/billing/invoices/:id/issue`, `/billing/invoices/:id/void` | Draft-only mutables; issue/void constraints |
 | `GET/POST /billing/payments`, `POST /billing/payments/:paymentId/void`, `GET /billing/summary` | Payment tracking and period summary |

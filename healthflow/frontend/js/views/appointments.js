@@ -291,8 +291,12 @@ export default async function appointmentsView({ outlet }) {
       if (!ok) return;
     }
     try {
-      await api.patch(`/api/appointments/${id}/status`, { status: next });
-      toast('Appointment updated.', 'success');
+      const result = await api.patch(`/api/appointments/${id}/status`, { status: next });
+      if (next === 'checked_in') {
+        toast(result && result.queued ? 'Checked in and added to the queue.' : 'Checked in.', 'success');
+      } else {
+        toast('Appointment updated.', 'success');
+      }
       announce('Appointment status updated.');
       await load();
     } catch (err) {

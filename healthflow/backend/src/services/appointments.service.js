@@ -1,8 +1,12 @@
 const { query, withTransaction } = require('../config/db');
 const ApiError = require('../utils/ApiError');
 const audit = require('./audit.service');
+const rooms = require('./rooms.service');
 
 const STATUSES = ['scheduled', 'checked_in', 'completed', 'cancelled', 'no_show'];
+
+// Appointments feed the walk-in queue: checking in opens a visit and issues a ticket.
+const QUEUE_AREA = 'general';
 
 const BASE_SELECT = `
   SELECT a.*,
@@ -212,7 +216,82 @@ async function update(id, data, ctx = {}) {
 async function setStatus(id, status, ctx = {}) {
   if (!STATUSES.includes(status)) throw ApiError.badRequest(`Invalid status "${status}"`);
   const existing = await getById(id);
+
   const { rows } = await withTransaction(async (client) => {
+    let visit = null;
+    let queued = false;
+
+    if (status === 'checked_in') {
+      // Reuse an open visit for this appointment, otherwise create one and
+      // enqueue a ticket so the patient shows up in the live queue.
+      const found = await client.query(
+        `SELECT * FROM visits
+         WHERE appointment_id = $1 AND status NOT IN ('completed', 'cancelled', 'no_show')
+         ORDER BY id DESC LIMIT 1`,
+        [id]
+      );
+      visit = found.rows[0] || null;
+
+      if (!visit) {
+        const created = await client.query(
+          `INSERT INTO visits
+             (patient_id, clinician_id, room_id, registered_by, appointment_id,
+              visit_type, status, chief_complaint)
+           VALUES ($1, $2, $3, $4, $5, 'appointment', 'waiting', $6)
+           RETURNING *`,
+          [existing.patient_id, existing.clinician_id, existing.room_id, ctx.actorId, id, existing.reason]
+        );
+        visit = created.rows[0];
+
+        if (visit.room_id) {
+          await client.query(
+            `UPDATE rooms SET status = 'occupied' WHERE id = $1 AND status = 'available'`,
+            [visit.room_id]
+          );
+        }
+
+        await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [`queue:${QUEUE_AREA}`]);
+        const next = await client.query(
+          'SELECT COALESCE(MAX(ticket_no), 0) + 1 AS next FROM queue_entries WHERE area = $1',
+          [QUEUE_AREA]
+        );
+        await client.query(
+          `INSERT INTO queue_entries (visit_id, area, ticket_no, priority)
+           VALUES ($1, $2, $3, $4)`,
+          [visit.id, QUEUE_AREA, next.rows[0].next, 3]
+        );
+        queued = true;
+
+        await audit.record(client, {
+          actorId: ctx.actorId,
+          action: 'create',
+          entity: 'visits',
+          entityId: visit.id,
+          after: visit,
+          ip: ctx.ip,
+        });
+      }
+    } else if (['completed', 'cancelled', 'no_show'].includes(status)) {
+      // Keep the linked visit and queue ticket in step with the appointment.
+      const visitStatus = status;
+      const closed = await client.query(
+        `UPDATE visits
+         SET status = $2, completed_at = COALESCE(completed_at, now())
+         WHERE appointment_id = $1 AND status NOT IN ('completed', 'cancelled', 'no_show')
+         RETURNING id, room_id`,
+        [id, visitStatus]
+      );
+      for (const row of closed.rows) {
+        await client.query(
+          `UPDATE queue_entries
+           SET status = $2, finished_at = COALESCE(finished_at, now())
+           WHERE visit_id = $1 AND status IN ('waiting', 'called', 'in_room')`,
+          [row.id, status === 'completed' ? 'done' : 'cancelled']
+        );
+        if (row.room_id) await rooms.releaseRoom(client, row.room_id);
+      }
+    }
+
     const result = await client.query(
       'UPDATE appointments SET status = $2 WHERE id = $1 RETURNING *',
       [id, status]
@@ -226,7 +305,7 @@ async function setStatus(id, status, ctx = {}) {
       after: result.rows[0],
       ip: ctx.ip,
     });
-    return result;
+    return { rows: [{ ...result.rows[0], visit_id: visit ? visit.id : null, queued }] };
   });
   return rows[0];
 }
