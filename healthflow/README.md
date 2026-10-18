@@ -238,25 +238,36 @@ Purpose: show **how much a patient needs to pay**. There is no payment-gateway
 integration — nothing here talks to EcoCash, card terminals or banks. A
 "payment" is just a manual note by the desk that money was handed over.
 
+**How a bill is calculated** (always recomputed in SQL, so nothing can drift):
+
+- Each line stores `line_total = quantity × unit_price`.
+- `subtotal = Σ line_total`.
+- `total = max(subtotal − discount_amount, 0) × (1 + tax_rate / 100)`.
+- `paid_total = Σ amount` of non-void payments.
+- `balance_due = max(total − paid_total, 0)`.
+- Status follows the money: `0 paid → issued`, `paid ≥ total → paid`,
+  otherwise `partially_paid`.
+
 Three tabs:
 
 - **Invoices** — list with invoice number, patient, status badge, total,
-  paid, balance and creation date. Reception/admin can create invoices;
-  draft invoices are mutable, issued ones are locked, voiding is admin-only.
+  paid, balance and creation date. **New invoice** picks a patient (+ optional
+  discount/tax), then **Open** shows the detail: add / edit / remove line
+  items (pick a catalogue service or enter a custom line), see the running
+  subtotal, discount, tax, total, paid and balance, then **Issue invoice**,
+  **Record payment**, **Void** and **Delete** (draft, admin).
 - **Payments** — manual records of money received, with invoice number,
   amount, method label (cash / card / insurance / bank transfer / mobile
   money / other), reference, who took it and when. Admin can void a record
-  (the balance is recalculated).
+  (the balance and status are recalculated).
 - **Service catalogue** — the priced services used as invoice line items
-  (code, name, category, price, active). Admin manages the catalogue.
+  (code, name, category, price, active). Admin can create and edit items.
 
 Invoice lifecycle: `draft → issued → partially_paid → paid` (payments push it
-along; `void` is terminal). Totals are always recomputed in SQL — line items,
-payments, balance and summary cannot drift.
+along; `void` is terminal). Only draft invoices can be edited or deleted;
+issued/paid invoices are locked and admin can void them (only when no money is
+recorded against them).
 
-> Note: the billing screens currently display the lists read-only; create,
-> pay, void and catalogue editing are fully available on the API (see below)
-> and are the next UI work item.
 
 ### Reports (admin / clinician)
 

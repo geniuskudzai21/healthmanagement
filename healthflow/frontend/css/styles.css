@@ -1876,6 +1876,109 @@ textarea[aria-invalid="true"] {
   }
 }
 
+/* --------------------------------------------------------- billing ---- */
+
+.bill-detail__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.table--compact th,
+.table--compact td {
+  padding: 0.4rem 0.6rem;
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.line-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  padding: 0.75rem;
+  border: 1px dashed var(--border, #d5d5d5);
+  border-radius: 0.5rem;
+}
+
+.line-form .field {
+  margin: 0;
+}
+
+.field--grow {
+  flex: 1 1 10rem;
+}
+
+.field--num {
+  flex: 0 0 6rem;
+}
+
+.bill-totals {
+  display: grid;
+  gap: 0.35rem;
+  max-width: 22rem;
+  margin: 1rem 0 0 auto;
+}
+
+.bill-totals > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.bill-totals dt {
+  color: var(--text-muted, #6b7280);
+}
+
+.bill-totals dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.bill-totals__total {
+  font-weight: 600;
+  border-top: 1px solid var(--border, #d5d5d5);
+  padding-top: 0.35rem;
+}
+
+.bill-totals__balance {
+  font-weight: 700;
+}
+
+.bill-subtitle {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+.bill-payments {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bill-payments li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border, #eee);
+}
+
+.bill-payments li.is-void {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+
 /* -------------------------------------------------- reduced motion ---- */
 
 @media (prefers-reduced-motion: reduce) {

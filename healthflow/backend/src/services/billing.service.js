@@ -225,7 +225,7 @@ async function syncPaidStatus(client, invoiceId) {
         END
       FROM (SELECT COALESCE(SUM(amount), 0)::numeric AS paid
             FROM payments WHERE invoice_id = $1 AND NOT is_void) pay
-      WHERE i.id = $1 AND i.status IN ('issued', 'partially_paid')
+      WHERE i.id = $1 AND i.status IN ('issued', 'partially_paid', 'paid')
       RETURNING i.*
     `,
     [invoiceId]
