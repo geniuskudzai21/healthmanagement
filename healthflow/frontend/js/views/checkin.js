@@ -15,11 +15,6 @@ import { patientPicker } from '../components.js';
 import { navigate } from '../router.js';
 
 const SEX_OPTIONS = ['female', 'male'];
-const AREAS = [
-  ['general', 'General'],
-  ['vitals', 'Vitals'],
-  ['consult', 'Consultation'],
-];
 const VISIT_TYPES = [
   ['walk-in', 'Walk-in'],
   ['appointment', 'Appointment'],
@@ -108,12 +103,6 @@ export default function checkinView({ outlet }) {
         <h2 id="visit-heading" class="panel__title">2. Visit details</h2>
         <form id="checkin-form" novalidate>
           <div class="field">
-            <label for="area">Queue area</label>
-            <select id="area" name="area">
-              ${AREAS.map(([value, label]) => html`<option value="${value}">${label}</option>`)}
-            </select>
-          </div>
-          <div class="field">
             <label for="visit_type">Visit type</label>
             <select id="visit_type" name="visit_type">
               ${VISIT_TYPES.map(([value, label]) => html`<option value="${value}">${label}</option>`)}
@@ -167,7 +156,7 @@ export default function checkinView({ outlet }) {
   function collect() {
     const visit = formValues(form);
     visit.triage_level = Number(visit.triage_level);
-    visit.area = visit.area || 'general';
+    visit.area = 'consult';
 
     if (mode === 'existing') {
       const patient = picker.getSelected();

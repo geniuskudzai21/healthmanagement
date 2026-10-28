@@ -19,10 +19,7 @@ import {
   formValues,
 } from '../ui.js';
 
-const AREAS = [
-  ['all', 'All'],
-  ['general', 'General'],
-  ['vitals', 'Vitals'],
+  const AREAS = [
   ['consult', 'Consultation'],
 ];
 
@@ -71,7 +68,7 @@ function rowActions(entry) {
 export default async function queueView({ outlet }) {
   setPage('Queue', 'Live waiting list, called patients and rooms.');
 
-  let area = 'all';
+  let area = 'consult';
   let showFinished = false;
   let autoRefresh = true;
   let pollTimer = null;
@@ -83,13 +80,6 @@ export default async function queueView({ outlet }) {
     outlet,
     html`<div class="queue">
       <div class="toolbar toolbar--wrap">
-        <div class="tabs" role="tablist" aria-label="Queue area" id="area-tabs">
-          ${AREAS.map(
-            ([value, label]) => html`<button type="button" role="tab" class="tab${value === area ? ' is-selected' : ''}"
-              data-area="${value}" aria-selected="${value === area}">${label}</button>`
-          )}
-        </div>
-
         <div class="toolbar__actions">
           <label class="switch">
             <input type="checkbox" id="show-finished" />
@@ -137,14 +127,13 @@ export default async function queueView({ outlet }) {
     }
   }
 
-  async function load() {
+  async   function load() {
     if (loading) return;
     loading = true;
     body.setAttribute('aria-busy', 'true');
     if (!entries.length) body.innerHTML = spinner();
     try {
-      const params = {};
-      if (area !== 'all') params.area = area;
+      const params = { area: 'consult' };
       entries = await api.get('/api/queue', params);
       render();
     } catch (err) {
@@ -258,15 +247,11 @@ export default async function queueView({ outlet }) {
     });
   }
 
-  async function callNext() {
-    if (area === 'all') {
-      toast('Choose a specific area to call the next patient.', 'warning');
-      return;
-    }
+  async   function callNext() {
     const button = outlet.querySelector('#call-next');
     setBusy(button, true, 'Calling…');
     try {
-      const called = await api.post('/api/queue/call-next', { area });
+      const called = await api.post('/api/queue/call-next', { area: 'consult' });
       if (called) {
         toast(`Now calling ticket #${called.ticket_no}.`, 'success');
         announce(`Now calling ticket number ${called.ticket_no}.`, true);

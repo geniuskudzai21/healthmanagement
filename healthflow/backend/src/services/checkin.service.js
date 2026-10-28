@@ -2,7 +2,7 @@ const { withTransaction } = require('../config/db');
 const ApiError = require('../utils/ApiError');
 const audit = require('./audit.service');
 
-const AREAS = ['general', 'vitals', 'consult'];
+const AREAS = ['consult'];
 
 /**
  * One-step reception check-in: find-or-create the patient, open a walk-in

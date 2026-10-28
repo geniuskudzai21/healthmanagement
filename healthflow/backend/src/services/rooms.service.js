@@ -128,7 +128,7 @@ async function releaseRoom(client, roomId) {
  * requested type when supplied), marks it occupied and links it to the visit.
  */
 async function routeVisit(visitId, { room_type = 'consult' } = {}, ctx = {}) {
-  const roomType = room_type || 'consult';
+  const roomType = 'consult';
   return withTransaction(async (client) => {
     const visitRes = await client.query(
       'SELECT id, room_id, status FROM visits WHERE id = $1 FOR UPDATE',

@@ -126,7 +126,7 @@ CREATE TABLE queue_entries (
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT uq_queue_visit UNIQUE (visit_id),
     CONSTRAINT uq_queue_ticket UNIQUE (area, ticket_no),
-    CONSTRAINT ck_queue_area CHECK (area IN ('general', 'vitals', 'consult')),
+    CONSTRAINT ck_queue_area CHECK (area IN ('consult')),
     CONSTRAINT ck_queue_priority CHECK (priority BETWEEN 1 AND 5),
     CONSTRAINT ck_queue_status CHECK (
         status IN ('waiting', 'called', 'in_room', 'done', 'skipped', 'cancelled')

@@ -92,7 +92,7 @@ exports.route = [
   }),
   async (req, res, next) => {
     try {
-      res.json(await roomsService.routeVisit(req.valid.visit_id, { room_type: req.valid.room_type }, res.locals.ctx));
+      res.json(await roomsService.routeVisit(req.valid.visit_id, { room_type: 'consult' }, res.locals.ctx));
     } catch (err) {
       next(err);
     }

@@ -17,7 +17,7 @@ exports.checkIn = [
     chief_complaint: { type: 'string', maxLength: 1000 },
     triage_level: { type: 'integer', min: 1, max: 5 },
     clinician_id: { type: 'integer' },
-    area: { type: 'string', enum: ['general', 'vitals', 'consult'], default: 'general' },
+    area: { type: 'string', enum: ['consult'], default: 'consult' },
     visit_type: { type: 'string', enum: VISIT_TYPES, default: 'walk-in' },
   }),
   async (req, res, next) => {
