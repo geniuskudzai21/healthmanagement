@@ -225,10 +225,6 @@ export default async function queueView({ outlet }) {
           <label for="room_type">Room type</label>
           <select id="room_type" name="room_type">
             <option value="consult">Consultation</option>
-            <option value="triage">Triage</option>
-            <option value="procedure">Procedure</option>
-            <option value="waiting">Waiting</option>
-            <option value="other">Other</option>
           </select>
         </div>
         <p class="muted">The next free room of this type will be assigned automatically.</p>

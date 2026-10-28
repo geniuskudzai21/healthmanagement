@@ -1,7 +1,7 @@
 const patientsService = require('../services/patients.service');
 const { validateBody, validateQuery, EMAIL_PATTERN } = require('../middleware/validate');
 
-const SEX = ['female', 'male', 'intersex', 'unknown'];
+const SEX = ['female', 'male'];
 const BLOOD = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 const createSchema = {
@@ -9,7 +9,7 @@ const createSchema = {
   first_name: { type: 'string', required: true, maxLength: 100 },
   last_name: { type: 'string', required: true, maxLength: 100 },
   date_of_birth: { type: 'date', required: true },
-  sex: { type: 'string', enum: SEX, default: 'unknown' },
+  sex: { type: 'string', enum: SEX, required: true },
   phone: { type: 'string', maxLength: 40 },
   email: { type: 'string', pattern: EMAIL_PATTERN, patternMessage: 'must be a valid email' },
   address: { type: 'string', maxLength: 500 },

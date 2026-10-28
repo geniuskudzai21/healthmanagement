@@ -19,7 +19,7 @@ import {
   statusBadge,
 } from '../ui.js';
 
-const SEX_OPTIONS = ['female', 'male', 'intersex', 'unknown'];
+const SEX_OPTIONS = ['female', 'male'];
 const BLOOD_OPTIONS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 function canRegister() {
@@ -55,7 +55,7 @@ function registerForm() {
       </div>
       <div class="field">
         <label for="sex">Sex</label>
-        <select id="sex" name="sex">
+        <select id="sex" name="sex" required>
           ${SEX_OPTIONS.map((s) => html`<option value="${s}">${sexLabel(s)}</option>`)}
         </select>
       </div>

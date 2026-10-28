@@ -15,7 +15,7 @@ async function checkIn(data, ctx = {}) {
     first_name = null,
     last_name = null,
     date_of_birth = null,
-    sex = 'unknown',
+    sex = null,
     phone = null,
     chief_complaint = null,
     triage_level = null,
@@ -25,9 +25,9 @@ async function checkIn(data, ctx = {}) {
   } = data;
 
   if (!AREAS.includes(area)) throw ApiError.badRequest(`Invalid area "${area}"`);
-  if (!patient_id && !(mrn && first_name && last_name && date_of_birth)) {
+  if (!patient_id && !(mrn && first_name && last_name && date_of_birth && sex)) {
     throw ApiError.badRequest(
-      'Provide patient_id, or mrn + first_name + last_name + date_of_birth to register a new patient.'
+      'Provide patient_id, or mrn + first_name + last_name + date_of_birth + sex to register a new patient.'
     );
   }
 

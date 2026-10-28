@@ -1,7 +1,7 @@
 const checkinService = require('../services/checkin.service');
 const { validateBody, EMAIL_PATTERN } = require('../middleware/validate');
 
-const SEX = ['female', 'male', 'intersex', 'unknown'];
+const SEX = ['female', 'male'];
 const VISIT_TYPES = ['walk-in', 'appointment', 'follow-up'];
 
 exports.checkIn = [
@@ -11,7 +11,7 @@ exports.checkIn = [
     first_name: { type: 'string', maxLength: 100 },
     last_name: { type: 'string', maxLength: 100 },
     date_of_birth: { type: 'date' },
-    sex: { type: 'string', enum: SEX, default: 'unknown' },
+    sex: { type: 'string', enum: SEX },
     phone: { type: 'string', maxLength: 40 },
     email: { type: 'string', pattern: EMAIL_PATTERN, patternMessage: 'must be a valid email' },
     chief_complaint: { type: 'string', maxLength: 1000 },

@@ -67,7 +67,7 @@ async function create(data, ctx = {}) {
     first_name,
     last_name,
     date_of_birth,
-    sex = 'unknown',
+    sex,
     phone = null,
     email = null,
     address = null,

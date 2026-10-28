@@ -69,7 +69,7 @@ CREATE TABLE rooms (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT uq_rooms_code UNIQUE (code),
-    CONSTRAINT ck_rooms_type CHECK (room_type IN ('consult', 'triage', 'procedure', 'waiting', 'other')),
+    CONSTRAINT ck_rooms_type CHECK (room_type IN ('consult')),
     CONSTRAINT ck_rooms_status CHECK (status IN ('available', 'occupied', 'maintenance', 'reserved'))
 );
 

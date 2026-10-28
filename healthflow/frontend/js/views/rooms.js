@@ -20,10 +20,6 @@ import {
 
 const TYPES = [
   ['consult', 'Consultation'],
-  ['triage', 'Triage'],
-  ['procedure', 'Procedure'],
-  ['waiting', 'Waiting'],
-  ['other', 'Other'],
 ];
 
 const STATUSES = [

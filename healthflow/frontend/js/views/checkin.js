@@ -14,7 +14,7 @@ import {
 import { patientPicker } from '../components.js';
 import { navigate } from '../router.js';
 
-const SEX_OPTIONS = ['female', 'male', 'intersex', 'unknown'];
+const SEX_OPTIONS = ['female', 'male'];
 const AREAS = [
   ['general', 'General'],
   ['vitals', 'Vitals'],
@@ -92,7 +92,7 @@ export default function checkinView({ outlet }) {
             </div>
             <div class="field">
               <label for="new-sex">Sex</label>
-              <select id="new-sex" name="sex">
+              <select id="new-sex" name="sex" required>
                 ${SEX_OPTIONS.map((s) => html`<option value="${s}">${sexLabel(s)}</option>`)}
               </select>
             </div>
@@ -176,9 +176,8 @@ export default function checkinView({ outlet }) {
     }
 
     const p = formValues(outlet.querySelector('#panel-new'));
-    p.sex = p.sex || 'unknown';
-    if (!p.mrn || !p.first_name || !p.last_name || !p.date_of_birth) {
-      return { error: 'Enter MRN, name and date of birth for the new patient.' };
+    if (!p.mrn || !p.first_name || !p.last_name || !p.date_of_birth || !p.sex) {
+      return { error: 'Enter MRN, name, date of birth and sex for the new patient.' };
     }
     if (!p.phone) delete p.phone;
     return { payload: { ...visit, ...p } };

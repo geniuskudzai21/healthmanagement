@@ -1,7 +1,7 @@
 const roomsService = require('../services/rooms.service');
 const { validateBody, validateQuery } = require('../middleware/validate');
 
-const ROOM_TYPES = ['consult', 'triage', 'procedure', 'waiting', 'other'];
+const ROOM_TYPES = ['consult'];
 const ROOM_STATUS = ['available', 'occupied', 'maintenance', 'reserved'];
 
 const createSchema = {
